@@ -1,0 +1,8 @@
+#!/bin/sh
+# Blocks commits when the generated agent files drift from src/ian.md.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 scripts/sync-agents.py --check
+fi
+exec docker compose run --rm check
