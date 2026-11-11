@@ -1,0 +1,17 @@
+services:
+  sync:
+    build: .
+    volumes:
+      - .:/repo
+
+  check:
+    build: .
+    command: ["--check"]
+    volumes:
+      - .:/repo:ro
+
+  package:
+    build: .
+    command: ["--package", "dist/ian-agents.zip"]
+    volumes:
+      - .:/repo

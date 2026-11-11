@@ -1,0 +1,33 @@
+name: release
+
+on:
+    push:
+        branches: [main]
+        # Only release when a shipped agent file changes.
+        paths:
+            - .github/agents/**
+            - .claude/agents/**
+            - skills/**
+
+permissions:
+    contents: write
+
+jobs:
+    release:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Package the agent files
+              run: python3 scripts/sync-agents.py --package dist/ian-agents.zip
+
+            - name: Create the release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  tag="v$(date -u +%Y.%m.%d)-${GITHUB_RUN_NUMBER}"
+                  gh release create "$tag" dist/ian-agents.zip \
+                      --target "$GITHUB_SHA" \
+                      --title "$tag" \
+                      --generate-notes \
+                      --notes "Each agent has its own folder. Copy ian.agent.md to .github/agents/ (VS Code) and ian.md to .claude/agents/ (Claude Code), or upload SKILL.md under Customize > Skills in Gemini."
